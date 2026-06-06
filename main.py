@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from modelos.clientes import Cliente
+from modelos.facturas import Factura
+from modelos.transacciones import Transaccion
 
 app = FastAPI()
 
@@ -15,26 +18,67 @@ def inicio():
 # MODELOS
 # ==========================
 
-class Factura(BaseModel):
-    id: int
-    fecha: str
-    valor_total: float
-    cliente: str
 
 
-class Transaccion(BaseModel):
-    id: int
-    vr_unitario: float
-    cantidad: int
-    factura_id: int
+
+
+
 
 
 # ==========================
 # LISTAS TEMPORALES
 # ==========================
 
+clientes = []
 facturas = []
 transacciones = []
+
+# ==========================
+# CLIENTES
+# ==========================
+
+@app.get("/clientes")
+def ver_clientes():
+    return clientes
+
+
+@app.post("/clientes")
+def agregar_cliente(cliente: Cliente):
+    clientes.append(cliente)
+    return {
+        "mensaje": "Cliente agregado",
+        "datos": cliente
+    }
+
+
+@app.put("/clientes/{id}")
+def actualizar_cliente(id: int, cliente: Cliente):
+
+    for i in range(len(clientes)):
+        if clientes[i].id == id:
+            clientes[i] = cliente
+
+            return {
+                "mensaje": "Cliente actualizado",
+                "datos": cliente
+            }
+
+    return {"mensaje": "Cliente no encontrado"}
+
+
+@app.delete("/clientes/{id}")
+def eliminar_cliente(id: int):
+
+    for i in range(len(clientes)):
+        if clientes[i].id == id:
+            eliminado = clientes.pop(i)
+
+            return {
+                "mensaje": "Cliente eliminado",
+                "datos": eliminado
+            }
+
+    return {"mensaje": "Cliente no encontrado"}
 
 # ==========================
 # FACTURAS
@@ -80,7 +124,6 @@ def eliminar_factura(id: int):
             }
 
     return {"mensaje": "Factura no encontrada"}
-
 
 # ==========================
 # TRANSACCIONES
